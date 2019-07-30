@@ -28,62 +28,6 @@ void td_reset (qk_tap_dance_state_t *state, void *user_data);
 //Declare variable to track which layer is active
 int active_layer;
 
-//Update active_layer
-uint32_t layer_state_set_user(uint32_t state) {
-  switch (biton32(state)) {
-    case 1:
-      active_layer = 1;
-      break;
-    case 2:
-      active_layer = 2;
-      break;
-    case 3:
-      active_layer = 3;
-      break;
-    default:
-      active_layer = 0;
-      break;
-  }
-  return state;
-}
-
-//Determine the current tap dance state
-int cur_dance (qk_tap_dance_state_t *state) {
-  if (state->count == 1) {
-    if (!state->pressed) {return SINGLE_TAP;}
-    else return SINGLE_HOLD;
-  } else if (state->count == 2) {return DOUBLE_TAP;}
-  else return 8;
-}
-
-//Initialize tap structure associated with example tap dance key
-static tap ql_tap_state = {
-  .is_press_action = true,
-  .state = 0
-};
-
-void td_finished (qk_tap_dance_state_t *state, void *user_data) {
-  ql_tap_state.state = cur_dance(state);
-  switch (ql_tap_state.state) {
-    case SINGLE_HOLD: layer_on(_FN); break;
-    case DOUBLE_TAP:
-      if (active_layer==_RGB) {layer_off(_RGB);}
-      else {
-        layer_on(_RGB);
-      }
-  }
-  }
-
-void td_reset (qk_tap_dance_state_t *state, void *user_data) {
-  if (ql_tap_state.state==SINGLE_HOLD) {layer_off(_FN);}
-  ql_tap_state.state = 0;
-}
-
-
-qk_tap_dance_action_t tap_dance_actions[] = {
-//   [TD_FN_RGB]  = ACTION_TAP_DANCE_DOUBLE(MO(_FN), TG(_RGB))
- [TD_FN_RGB]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_finished, td_reset)
-};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		[_BASE] = LAYOUT_65_ansi( /* Base */
@@ -172,3 +116,60 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
 	  return true;
 }
+
+//Update active_layer
+uint32_t layer_state_set_user(uint32_t state) {
+  switch (biton32(state)) {
+    case 1:
+      active_layer = 1;
+      break;
+    case 2:
+      active_layer = 2;
+      break;
+    case 3:
+      active_layer = 3;
+      break;
+    default:
+      active_layer = 0;
+      break;
+  }
+  return state;
+}
+
+//Determine the current tap dance state
+int cur_dance (qk_tap_dance_state_t *state) {
+  if (state->count == 1) {
+    if (!state->pressed) {return SINGLE_TAP;}
+    else return SINGLE_HOLD;
+  } else if (state->count == 2) {return DOUBLE_TAP;}
+  else return 8;
+}
+
+//Initialize tap structure associated with example tap dance key
+static tap ql_tap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
+void td_finished (qk_tap_dance_state_t *state, void *user_data) {
+  ql_tap_state.state = cur_dance(state);
+  switch (ql_tap_state.state) {
+    case SINGLE_HOLD: layer_on(_FN); break;
+    case DOUBLE_TAP:
+      if (active_layer==_RGB) {layer_off(_RGB);}
+      else {
+        layer_on(_RGB);
+      }
+  }
+  }
+
+void td_reset (qk_tap_dance_state_t *state, void *user_data) {
+  if (ql_tap_state.state==SINGLE_HOLD) {layer_off(_FN);}
+  ql_tap_state.state = 0;
+}
+
+
+qk_tap_dance_action_t tap_dance_actions[] = {
+//   [TD_FN_RGB]  = ACTION_TAP_DANCE_DOUBLE(MO(_FN), TG(_RGB))
+ [TD_FN_RGB]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_finished, td_reset)
+};
